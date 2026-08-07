@@ -211,6 +211,7 @@
     font-weight: 600;
     border-radius: 12px;
     margin-top: 14px;
+    cursor: pointer;
   }
   
   .form {
@@ -625,14 +626,24 @@ function showToast(message = "Saved to cloud ✓") {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+// Standard RFC4122 UUID generator to match Supabase 'uuid' primary keys
 function uid() { 
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); 
+  return typeof crypto.randomUUID === 'function' 
+    ? crypto.randomUUID() 
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
 }
 
 async function loadAll() {
-  const { data: rawData } = await supabase.from('raw_materials').select('*');
-  const { data: orderData } = await supabase.from('manual_orders').select('*');
-  const { data: productData } = await supabase.from('products').select('*');
+  const { data: rawData, error: rawErr } = await supabase.from('raw_materials').select('*');
+  const { data: orderData, error: orderErr } = await supabase.from('manual_orders').select('*');
+  const { data: productData, error: prodErr } = await supabase.from('products').select('*');
+
+  if (rawErr) console.error("Error fetching raw_materials:", rawErr.message);
+  if (orderErr) console.error("Error fetching manual_orders:", orderErr.message);
+  if (prodErr) console.error("Error fetching products:", prodErr.message);
 
   raw = rawData || [];
   manualOrders = orderData || [];
@@ -664,7 +675,7 @@ async function saveItem(table, item) {
   const { data, error } = await supabase.from(table).upsert(item);
   
   if (error) {
-    console.error('Supabase Error:', error);
+    console.error('Supabase Save Error:', error);
     alert(`Supabase Error (${table}): ${error.message}`);
     return false;
   }
@@ -675,9 +686,17 @@ async function saveItem(table, item) {
 }
 
 async function deleteItem(table, id) {
-  await supabase.from(table).delete().eq('id', id);
+  const { error } = await supabase.from(table).delete().eq('id', id);
+  
+  if (error) {
+    console.error('Supabase Delete Error:', error);
+    alert(`Supabase Error (${table}): ${error.message}`);
+    return false;
+  }
+
   showToast("Deleted from cloud ✓");
   updateStats();
+  return true;
 }
 
 function switchTab(name) {
@@ -779,16 +798,18 @@ async function addRaw() {
   if (!name) return;
 
   const newItem = { id: uid(), name, qty, unit, threshold };
-  raw.push(newItem);
-  await saveItem('raw_materials', newItem);
-
-  document.getElementById('raw-name').value = '';
-  document.getElementById('raw-qty').value = '';
-  document.getElementById('raw-unit').value = 'kg';
-  document.getElementById('raw-threshold').value = '';
-  toggleForm('raw-form');
-  renderRaw();
-  renderOrder();
+  
+  const success = await saveItem('raw_materials', newItem);
+  if (success) {
+    raw.push(newItem);
+    document.getElementById('raw-name').value = '';
+    document.getElementById('raw-qty').value = '';
+    document.getElementById('raw-unit').value = 'kg';
+    document.getElementById('raw-threshold').value = '';
+    toggleForm('raw-form');
+    renderRaw();
+    renderOrder();
+  }
 }
 
 function renderOrder() {
@@ -833,13 +854,15 @@ async function addOrder() {
   if (!name) return;
 
   const newItem = { id: uid(), name, note };
-  manualOrders.push(newItem);
-  await saveItem('manual_orders', newItem);
-
-  document.getElementById('order-name').value = '';
-  document.getElementById('order-note').value = '';
-  toggleForm('order-form');
-  renderOrder();
+  
+  const success = await saveItem('manual_orders', newItem);
+  if (success) {
+    manualOrders.push(newItem);
+    document.getElementById('order-name').value = '';
+    document.getElementById('order-note').value = '';
+    toggleForm('order-form');
+    renderOrder();
+  }
 }
 
 async function removeOrder(id) {
@@ -900,15 +923,17 @@ async function addProduct() {
   if (!name) return;
 
   const newItem = { id: uid(), name, price, qty, sku };
-  products.push(newItem);
-  await saveItem('products', newItem);
-
-  document.getElementById('product-name').value = '';
-  document.getElementById('product-price').value = '';
-  document.getElementById('product-qty').value = '';
-  document.getElementById('product-sku').value = '';
-  toggleForm('product-form');
-  renderProducts();
+  
+  const success = await saveItem('products', newItem);
+  if (success) {
+    products.push(newItem);
+    document.getElementById('product-name').value = '';
+    document.getElementById('product-price').value = '';
+    document.getElementById('product-qty').value = '';
+    document.getElementById('product-sku').value = '';
+    toggleForm('product-form');
+    renderProducts();
+  }
 }
 
 function exportToCSV() {
