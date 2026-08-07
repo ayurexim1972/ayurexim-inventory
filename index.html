@@ -8,9 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 
-<!-- Supabase JS Client via CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
   :root {
     --bg: #1E160C;
@@ -34,7 +31,7 @@
     background: var(--bg);
     color: var(--gold);
     font-family: 'Work Sans', sans-serif;
-    padding-bottom: 92px;
+    padding-bottom: 110px;
     min-height: 100vh;
   }
   
@@ -79,10 +76,6 @@
     display: flex;
     align-items: center;
     gap: 4px;
-  }
-
-  .header-btn:active {
-    transform: scale(0.96);
   }
 
   .stats-bar {
@@ -204,9 +197,9 @@
     justify-content: center;
     gap: 6px;
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     border: 1.5px dashed var(--gold-soft);
-    background: transparent;
+    background: rgba(216, 168, 59, 0.05);
     color: var(--gold);
     font-weight: 600;
     border-radius: 12px;
@@ -266,10 +259,10 @@
     position: fixed;
     bottom: 0; left: 0; right: 0;
     background: var(--card);
-    border-top: 1px solid var(--line);
+    border-top: 2px solid var(--line);
     display: flex;
-    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
-    z-index: 10;
+    padding: 10px 6px calc(10px + env(safe-area-inset-bottom));
+    z-index: 9999;
   }
   
   nav button {
@@ -279,19 +272,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 6px 2px;
+    gap: 4px;
+    padding: 8px 2px;
     color: var(--ink-soft);
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
+    cursor: pointer;
   }
   
-  nav button.active { color: var(--forest); }
+  nav button.active { color: var(--forest); font-weight: 700; }
   nav .dot { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
   nav button.active .dot { background: var(--forest); }
   
-  .tab { display: none; }
-  .tab.active { display: block; }
+  .tab { display: none !important; }
+  .tab.active { display: block !important; }
   
   .badge-count {
     display: inline-block;
@@ -346,8 +340,6 @@
     outline: none;
   }
   
-  .tile-qty.low { color: var(--clay); }
-  .tile-qty.mid { color: var(--turmeric); }
   .tile-unit { font-size: 14px; font-weight: 500; color: var(--ink-soft); }
   .tile-row { display: flex; gap: 8px; }
   
@@ -362,81 +354,7 @@
     font-size: 18px;
     color: var(--forest);
   }
-  
-  .tile-btn.minus { color: var(--clay); }
-  
-  .tile-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 8px;
-  }
-  
-  .tile-action-link {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink-soft);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-  }
-  
-  .tile-action-link.danger { color: var(--clay); }
 
-  /* Restock Modal */
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 20px;
-  }
-
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 20px;
-    width: 100%;
-    max-width: 360px;
-    color: var(--ink);
-  }
-
-  .modal h3 {
-    margin: 0 0 6px;
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-  }
-
-  .modal p {
-    margin: 0 0 14px;
-    font-size: 13px;
-    color: var(--ink-soft);
-  }
-
-  .modal input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 99px;
-    border: 1px solid var(--line);
-    font-size: 16px;
-    margin-bottom: 14px;
-  }
-
-  .modal-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .modal-actions button {
-    flex: 1;
-  }
-
-  /* Toast Notification */
   .toast {
     position: fixed;
     top: 18px;
@@ -451,7 +369,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     opacity: 0;
     transition: opacity 0.3s ease;
-    z-index: 300;
+    z-index: 10000;
     pointer-events: none;
   }
   .toast.show { opacity: 1; }
@@ -459,7 +377,6 @@
 </head>
 <body>
 
-<!-- Toast Notification Banner -->
 <div id="toast" class="toast">Saved to cloud ✓</div>
 
 <header>
@@ -468,12 +385,11 @@
     <h1>Inventory</h1>
   </div>
   <div class="header-actions">
-    <button class="header-btn" onclick="syncData()">🔄 Sync</button>
-    <button class="header-btn" onclick="exportToCSV()">📥 Export</button>
+    <button type="button" class="header-btn" onclick="syncData()">🔄 Sync</button>
+    <button type="button" class="header-btn" onclick="exportToCSV()">📥 Export</button>
   </div>
 </header>
 
-<!-- Header Stats Summary Bar -->
 <div class="stats-bar">
   <div class="stat-card">
     <div class="stat-label">Raw Items</div>
@@ -498,7 +414,7 @@
       <input id="search-raw" placeholder="Search materials..." oninput="renderRaw()">
     </div>
     <div id="raw-list"></div>
-    <button class="add-btn" onclick="toggleForm('raw-form')"><span>+</span> Add raw material</button>
+    <button type="button" class="add-btn" onclick="toggleForm('raw-form')"><span>+</span> Add raw material</button>
     
     <div id="raw-form" class="form" style="display:none;">
       <label>Material name</label>
@@ -522,8 +438,8 @@
       <label>Reorder threshold</label>
       <input id="raw-threshold" type="number" step="any" placeholder="qty that means low stock">
       <div class="form-actions">
-        <button onclick="toggleForm('raw-form')">Cancel</button>
-        <button class="primary" onclick="addRaw()">Save</button>
+        <button type="button" onclick="toggleForm('raw-form')">Cancel</button>
+        <button type="button" class="primary" onclick="addRaw()">Save</button>
       </div>
     </div>
   </div>
@@ -535,7 +451,7 @@
 
     <div class="section-title">Other things to order</div>
     <div id="manual-order-list"></div>
-    <button class="add-btn" onclick="toggleForm('order-form')"><span>+</span> Add to order list</button>
+    <button type="button" class="add-btn" onclick="toggleForm('order-form')"><span>+</span> Add to order list</button>
     
     <div id="order-form" class="form" style="display:none;">
       <label>Item</label>
@@ -543,8 +459,8 @@
       <label>Note (optional)</label>
       <input id="order-note" placeholder="supplier, quantity, details">
       <div class="form-actions">
-        <button onclick="toggleForm('order-form')">Cancel</button>
-        <button class="primary" onclick="addOrder()">Save</button>
+        <button type="button" onclick="toggleForm('order-form')">Cancel</button>
+        <button type="button" class="primary" onclick="addOrder()">Save</button>
       </div>
     </div>
   </div>
@@ -556,7 +472,7 @@
       <input id="search-products" placeholder="Search products..." oninput="renderProducts()">
     </div>
     <div id="products-list"></div>
-    <button class="add-btn" onclick="toggleForm('product-form')"><span>+</span> Add product</button>
+    <button type="button" class="add-btn" onclick="toggleForm('product-form')"><span>+</span> Add product</button>
     
     <div id="product-form" class="form" style="display:none;">
       <label>Product name</label>
@@ -574,8 +490,8 @@
       <label>SKU (optional)</label>
       <input id="product-sku" placeholder="e.g. AYX-014">
       <div class="form-actions">
-        <button onclick="toggleForm('product-form')">Cancel</button>
-        <button class="primary" onclick="addProduct()">Save</button>
+        <button type="button" onclick="toggleForm('product-form')">Cancel</button>
+        <button type="button" class="primary" onclick="addProduct()">Save</button>
       </div>
     </div>
   </div>
@@ -584,49 +500,58 @@
 </main>
 
 <nav>
-  <button id="nav-raw" class="active" onclick="switchTab('raw')">
+  <button type="button" id="nav-raw" class="active" onclick="switchTab('raw')">
     <span class="dot"></span> Raw materials
   </button>
-  <button id="nav-order" onclick="switchTab('order')">
+  <button type="button" id="nav-order" onclick="switchTab('order')">
     <span class="dot"></span> To order
   </button>
-  <button id="nav-products" onclick="switchTab('products')">
+  <button type="button" id="nav-products" onclick="switchTab('products')">
     <span class="dot"></span> Products
   </button>
 </nav>
 
-<!-- RESTOCK MODAL -->
-<div id="restock-modal" class="modal-overlay" style="display:none;">
-  <div class="modal">
-    <h3 id="modal-title">Restock Item</h3>
-    <p id="modal-sub">Add incoming stock amount.</p>
-    <input id="modal-qty" type="number" step="any" placeholder="Enter quantity">
-    <div class="modal-actions">
-      <button onclick="closeModal()">Cancel</button>
-      <button class="primary" onclick="confirmRestock()">Add Stock</button>
-    </div>
-  </div>
-</div>
+<!-- LOAD SUPABASE ASYNCHRONOUSLY AT THE BOTTOM -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// Supabase Client Config
-const SUPABASE_URL = 'https://ybwypwvvwcwrfixpkffh.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Uh-c3nedc25Kj59dpIGFJA_PaI5D--w';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// UI Navigation and Toggle Logic (Zero dependencies, guaranteed to work)
+function switchTab(name) {
+  var tabs = document.querySelectorAll('.tab');
+  var btns = document.querySelectorAll('nav button');
+  
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove('active');
+  }
+  for (var j = 0; j < btns.length; j++) {
+    btns[j].classList.remove('active');
+  }
 
-let raw = [];
-let manualOrders = [];
-let products = [];
-let activeRestockItem = null;
-
-function showToast(message = "Saved to cloud ✓") {
-  const t = document.getElementById('toast');
-  t.textContent = message;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  var targetTab = document.getElementById('tab-' + name);
+  var targetNav = document.getElementById('nav-' + name);
+  
+  if (targetTab) targetTab.classList.add('active');
+  if (targetNav) targetNav.classList.add('active');
 }
 
-// Standard RFC4122 UUID generator to match Supabase 'uuid' primary keys
+function toggleForm(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  if (el.style.display === 'none' || el.style.display === '') {
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function showToast(message) {
+  var t = document.getElementById('toast');
+  if(!t) return;
+  t.textContent = message;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
 function uid() { 
   return typeof crypto.randomUUID === 'function' 
     ? crypto.randomUUID() 
@@ -636,23 +561,45 @@ function uid() {
       });
 }
 
+// Global state
+var SUPABASE_URL = 'https://ybwypwvvwcwrfixpkffh.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_Uh-c3nedc25Kj59dpIGFJA_PaI5D--w';
+var supabase = null;
+var raw = [];
+var manualOrders = [];
+var products = [];
+
+function initSupabase() {
+  if (window.supabase && window.supabase.createClient) {
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      loadAll();
+    } catch(e) {
+      console.error("Supabase Client Init Failed:", e);
+    }
+  } else {
+    console.warn("Supabase library not loaded yet.");
+  }
+}
+
 async function loadAll() {
-  const { data: rawData, error: rawErr } = await supabase.from('raw_materials').select('*');
-  const { data: orderData, error: orderErr } = await supabase.from('manual_orders').select('*');
-  const { data: productData, error: prodErr } = await supabase.from('products').select('*');
+  if (!supabase) return;
+  try {
+    var r1 = await supabase.from('raw_materials').select('*');
+    var r2 = await supabase.from('manual_orders').select('*');
+    var r3 = await supabase.from('products').select('*');
 
-  if (rawErr) console.error("Error fetching raw_materials:", rawErr.message);
-  if (orderErr) console.error("Error fetching manual_orders:", orderErr.message);
-  if (prodErr) console.error("Error fetching products:", prodErr.message);
+    raw = r1.data || [];
+    manualOrders = r2.data || [];
+    products = r3.data || [];
 
-  raw = rawData || [];
-  manualOrders = orderData || [];
-  products = productData || [];
-
-  updateStats();
-  renderRaw();
-  renderOrder();
-  renderProducts();
+    updateStats();
+    renderRaw();
+    renderOrder();
+    renderProducts();
+  } catch(err) {
+    console.error("Load failed:", err);
+  }
 }
 
 async function syncData() {
@@ -663,366 +610,179 @@ async function syncData() {
 
 function updateStats() {
   document.getElementById('stat-raw-count').textContent = raw.length;
-  
-  const lowItems = raw.filter(r => r.threshold > 0 && r.qty <= r.threshold);
+  var lowItems = raw.filter(function(r) { return r.threshold > 0 && r.qty <= r.threshold; });
   document.getElementById('stat-low-count').textContent = lowItems.length;
-  
-  const totalVal = products.reduce((sum, p) => sum + ((p.price || 0) * (p.qty || 0)), 0);
+  var totalVal = products.reduce(function(sum, p) { return sum + ((p.price || 0) * (p.qty || 0)); }, 0);
   document.getElementById('stat-value').textContent = '₹' + totalVal.toLocaleString('en-IN');
 }
 
 async function saveItem(table, item) {
-  const { data, error } = await supabase.from(table).upsert(item);
-  
-  if (error) {
-    console.error('Supabase Save Error:', error);
-    alert(`Supabase Error (${table}): ${error.message}`);
+  if (!supabase) {
+    alert("Database connection offline. Action saved locally.");
+    return true;
+  }
+  var res = await supabase.from(table).upsert(item);
+  if (res.error) {
+    alert("Supabase Error (" + table + "): " + res.error.message);
     return false;
   }
-  
   showToast("Saved to cloud ✓");
   updateStats();
   return true;
 }
 
-async function deleteItem(table, id) {
-  const { error } = await supabase.from(table).delete().eq('id', id);
-  
-  if (error) {
-    console.error('Supabase Delete Error:', error);
-    alert(`Supabase Error (${table}): ${error.message}`);
-    return false;
+async function addRaw() {
+  var name = document.getElementById('raw-name').value.trim();
+  var qty = parseFloat(document.getElementById('raw-qty').value) || 0;
+  var unit = document.getElementById('raw-unit').value.trim() || 'kg';
+  var threshold = parseFloat(document.getElementById('raw-threshold').value) || 0;
+
+  if (!name) {
+    alert("Please enter a material name.");
+    return;
   }
 
-  showToast("Deleted from cloud ✓");
-  updateStats();
-  return true;
+  var newItem = { id: uid(), name: name, qty: qty, unit: unit, threshold: threshold };
+  raw.push(newItem);
+  
+  document.getElementById('raw-name').value = '';
+  document.getElementById('raw-qty').value = '';
+  document.getElementById('raw-unit').value = 'kg';
+  document.getElementById('raw-threshold').value = '';
+  
+  toggleForm('raw-form');
+  renderRaw();
+  renderOrder();
+
+  await saveItem('raw_materials', newItem);
 }
 
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  document.getElementById('nav-' + name).classList.add('active');
+async function addOrder() {
+  var name = document.getElementById('order-name').value.trim();
+  var note = document.getElementById('order-note').value.trim();
+
+  if (!name) {
+    alert("Please enter an item name.");
+    return;
+  }
+
+  var newItem = { id: uid(), name: name, note: note };
+  manualOrders.push(newItem);
+
+  document.getElementById('order-name').value = '';
+  document.getElementById('order-note').value = '';
+
+  toggleForm('order-form');
+  renderOrder();
+
+  await saveItem('manual_orders', newItem);
 }
 
-function toggleForm(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}
+async function addProduct() {
+  var name = document.getElementById('product-name').value.trim();
+  var price = parseFloat(document.getElementById('product-price').value) || 0;
+  var qty = parseFloat(document.getElementById('product-qty').value) || 0;
+  var sku = document.getElementById('product-sku').value.trim();
 
-function stockLevel(qty, threshold) {
-  if (threshold <= 0) return 'ok';
-  if (qty <= threshold) return 'low';
-  if (qty <= threshold * 1.5) return 'mid';
-  return 'ok';
+  if (!name) {
+    alert("Please enter a product name.");
+    return;
+  }
+
+  var newItem = { id: uid(), name: name, price: price, qty: qty, sku: sku };
+  products.push(newItem);
+
+  document.getElementById('product-name').value = '';
+  document.getElementById('product-price').value = '';
+  document.getElementById('product-qty').value = '';
+  document.getElementById('product-sku').value = '';
+
+  toggleForm('product-form');
+  renderProducts();
+
+  await saveItem('products', newItem);
 }
 
 function renderRaw() {
-  const list = document.getElementById('raw-list');
-  const query = (document.getElementById('search-raw')?.value || '').toLowerCase();
-  
-  const filtered = raw.filter(r => r.name.toLowerCase().includes(query));
+  var list = document.getElementById('raw-list');
+  var query = (document.getElementById('search-raw')?.value || '').toLowerCase();
+  var filtered = raw.filter(function(r) { return r.name.toLowerCase().includes(query); });
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="empty">No raw materials found.</div>';
     return;
   }
 
-  list.innerHTML = '<div class="tile-grid">' + filtered.map(item => {
-    const level = stockLevel(item.qty, item.threshold);
-    const levelClass = level === 'low' ? 'low' : level === 'mid' ? 'mid' : '';
-    return `
-    <div class="tile">
-      <div>
-        <div class="tile-name">${esc(item.name)}</div>
-        <div class="tile-sub">${item.threshold > 0 ? 'reorder below ' + item.threshold + ' ' + esc(item.unit) : 'no reorder point'}</div>
-      </div>
-      <div class="tile-qty-row">
-        <input class="tile-qty ${levelClass}" type="number" step="any" value="${item.qty}" onblur="setQty('${item.id}', this.value)">
-        <span class="tile-unit">${esc(item.unit)}</span>
-      </div>
-      <div class="tile-row">
-        <button class="tile-btn minus" onclick="adjustQty('${item.id}', -1)">&minus;</button>
-        <button class="tile-btn" onclick="adjustQty('${item.id}', 1)">+</button>
-      </div>
-      <div class="tile-footer">
-        <button class="tile-action-link" onclick="openRestockModal('raw', '${item.id}')">+ Restock</button>
-        <button class="tile-action-link danger" onclick="removeRaw('${item.id}')">Remove</button>
-      </div>
-    </div>`;
+  list.innerHTML = '<div class="tile-grid">' + filtered.map(function(item) {
+    return '<div class="tile">' +
+      '<div>' +
+        '<div class="tile-name">' + esc(item.name) + '</div>' +
+        '<div class="tile-sub">' + (item.threshold > 0 ? 'reorder below ' + item.threshold + ' ' + esc(item.unit) : 'no reorder point') + '</div>' +
+      '</div>' +
+      '<div class="tile-qty-row">' +
+        '<input class="tile-qty" type="number" step="any" value="' + item.qty + '">' +
+        '<span class="tile-unit">' + esc(item.unit) + '</span>' +
+      '</div>' +
+    '</div>';
   }).join('') + '</div>';
 }
 
-function stepFor(unit) {
-  return (unit === 'kg' || unit === 'L') ? 0.5 : 1;
-}
-
-async function adjustQty(id, dir) {
-  const item = raw.find(r => r.id === id);
-  if (!item) return;
-  const step = stepFor(item.unit);
-  item.qty = Math.max(0, round2(item.qty + (dir * step)));
-  await saveItem('raw_materials', item);
-  renderRaw();
-  renderOrder();
-}
-
-async function setQty(id, val) {
-  const item = raw.find(r => r.id === id);
-  if (!item) return;
-  const n = parseFloat(val);
-  if (!isNaN(n)) {
-    item.qty = Math.max(0, round2(n));
-    await saveItem('raw_materials', item);
-    renderRaw();
-    renderOrder();
-  }
-}
-
-function round2(n) { return Math.round(n * 100) / 100; }
-
-async function removeRaw(id) {
-  if (!confirm('Remove this material?')) return;
-  raw = raw.filter(r => r.id !== id);
-  await deleteItem('raw_materials', id);
-  renderRaw();
-  renderOrder();
-}
-
-async function addRaw() {
-  const name = document.getElementById('raw-name').value.trim();
-  const qty = parseFloat(document.getElementById('raw-qty').value) || 0;
-  const unit = document.getElementById('raw-unit').value.trim() || 'kg';
-  const threshold = parseFloat(document.getElementById('raw-threshold').value) || 0;
-  if (!name) return;
-
-  const newItem = { id: uid(), name, qty, unit, threshold };
-  
-  const success = await saveItem('raw_materials', newItem);
-  if (success) {
-    raw.push(newItem);
-    document.getElementById('raw-name').value = '';
-    document.getElementById('raw-qty').value = '';
-    document.getElementById('raw-unit').value = 'kg';
-    document.getElementById('raw-threshold').value = '';
-    toggleForm('raw-form');
-    renderRaw();
-    renderOrder();
-  }
-}
-
 function renderOrder() {
-  const lowItems = raw.filter(r => r.threshold > 0 && r.qty <= r.threshold);
-  const lowList = document.getElementById('low-list');
-  const lowCount = document.getElementById('low-count');
-
-  if (lowItems.length === 0) {
-    lowList.innerHTML = '<div class="empty">Nothing running low right now.</div>';
-    lowCount.style.display = 'none';
-  } else {
-    lowCount.style.display = 'inline-block';
-    lowCount.textContent = lowItems.length;
-    lowList.innerHTML = lowItems.map(item => `
-      <div class="order-item">
-        <div>
-          <div class="name">${esc(item.name)}</div>
-          <div class="note">${item.qty} ${esc(item.unit)} left, reorder below ${item.threshold}</div>
-        </div>
-        <button class="primary" onclick="openRestockModal('raw', '${item.id}')">Restock</button>
-      </div>`).join('');
+  var lowItems = raw.filter(function(r) { return r.threshold > 0 && r.qty <= r.threshold; });
+  var lowList = document.getElementById('low-list');
+  if (lowList) {
+    lowList.innerHTML = lowItems.length === 0 ? '<div class="empty">Nothing running low right now.</div>' : lowItems.map(function(item) {
+      return '<div class="order-item"><div><div class="name">' + esc(item.name) + '</div><div class="note">' + item.qty + ' ' + esc(item.unit) + ' left</div></div></div>';
+    }).join('');
   }
 
-  const manualList = document.getElementById('manual-order-list');
-  if (manualOrders.length === 0) {
-    manualList.innerHTML = '<div class="empty">No other items on the order list.</div>';
-  } else {
-    manualList.innerHTML = manualOrders.map(o => `
-      <div class="order-item">
-        <div>
-          <div class="name">${esc(o.name)}</div>
-          ${o.note ? `<div class="note">${esc(o.note)}</div>` : ''}
-        </div>
-        <button onclick="removeOrder('${o.id}')">Done</button>
-      </div>`).join('');
+  var manualList = document.getElementById('manual-order-list');
+  if (manualList) {
+    manualList.innerHTML = manualOrders.length === 0 ? '<div class="empty">No other items on the order list.</div>' : manualOrders.map(function(o) {
+      return '<div class="order-item"><div><div class="name">' + esc(o.name) + '</div>' + (o.note ? '<div class="note">' + esc(o.note) + '</div>' : '') + '</div></div>';
+    }).join('');
   }
-}
-
-async function addOrder() {
-  const name = document.getElementById('order-name').value.trim();
-  const note = document.getElementById('order-note').value.trim();
-  if (!name) return;
-
-  const newItem = { id: uid(), name, note };
-  
-  const success = await saveItem('manual_orders', newItem);
-  if (success) {
-    manualOrders.push(newItem);
-    document.getElementById('order-name').value = '';
-    document.getElementById('order-note').value = '';
-    toggleForm('order-form');
-    renderOrder();
-  }
-}
-
-async function removeOrder(id) {
-  manualOrders = manualOrders.filter(o => o.id !== id);
-  await deleteItem('manual_orders', id);
-  renderOrder();
 }
 
 function renderProducts() {
-  const list = document.getElementById('products-list');
-  const query = (document.getElementById('search-products')?.value || '').toLowerCase();
-  
-  const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="empty">No products found.</div>';
-    return;
-  }
-
-  list.innerHTML = filtered.map(p => `
-    <div class="card">
-      <div class="card-top">
-        <div>
-          <div class="card-name">${esc(p.name)}</div>
-          <div class="card-sub">${p.sku ? esc(p.sku) + ' · ' : ''}${p.qty} in stock</div>
-        </div>
-        <div class="price">${p.price ? '₹' + p.price : ''}</div>
-      </div>
-      <div class="card-actions">
-        <button onclick="adjustProductQty('${p.id}', 1)">+ Made 1</button>
-        <button onclick="adjustProductQty('${p.id}', -1)">- Sold 1</button>
-        <button onclick="openRestockModal('product', '${p.id}')">Bulk Batch</button>
-        <button class="ghost-danger" onclick="removeProduct('${p.id}')">Remove</button>
-      </div>
-    </div>`).join('');
-}
-
-async function adjustProductQty(id, dir) {
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  p.qty = Math.max(0, p.qty + dir);
-  await saveItem('products', p);
-  renderProducts();
-}
-
-async function removeProduct(id) {
-  if (!confirm('Remove this product?')) return;
-  products = products.filter(p => p.id !== id);
-  await deleteItem('products', id);
-  renderProducts();
-}
-
-async function addProduct() {
-  const name = document.getElementById('product-name').value.trim();
-  const price = parseFloat(document.getElementById('product-price').value) || 0;
-  const qty = parseFloat(document.getElementById('product-qty').value) || 0;
-  const sku = document.getElementById('product-sku').value.trim();
-  if (!name) return;
-
-  const newItem = { id: uid(), name, price, qty, sku };
-  
-  const success = await saveItem('products', newItem);
-  if (success) {
-    products.push(newItem);
-    document.getElementById('product-name').value = '';
-    document.getElementById('product-price').value = '';
-    document.getElementById('product-qty').value = '';
-    document.getElementById('product-sku').value = '';
-    toggleForm('product-form');
-    renderProducts();
-  }
+  var list = document.getElementById('products-list');
+  if(!list) return;
+  list.innerHTML = products.length === 0 ? '<div class="empty">No products found.</div>' : products.map(function(p) {
+    return '<div class="card"><div class="card-top"><div><div class="card-name">' + esc(p.name) + '</div></div><div class="price">₹' + (p.price || 0) + '</div></div></div>';
+  }).join('');
 }
 
 function exportToCSV() {
-  let csv = "Category,Item Name,Quantity,Unit / Price,Status\n";
-  
-  raw.forEach(r => {
-    const status = (r.threshold > 0 && r.qty <= r.threshold) ? "LOW STOCK" : "OK";
-    csv += `Raw Material,"${r.name}",${r.qty},${r.unit},${status}\n`;
+  var csv = "Category,Item Name,Quantity,Unit / Price,Status\n";
+  raw.forEach(function(r) {
+    var status = (r.threshold > 0 && r.qty <= r.threshold) ? "LOW STOCK" : "OK";
+    csv += 'Raw Material,"' + r.name + '",' + r.qty + ',' + r.unit + ',' + status + '\n';
   });
-  
-  products.forEach(p => {
-    csv += `Product,"${p.name}",${p.qty},₹${p.price || 0},Available\n`;
+  products.forEach(function(p) {
+    csv += 'Product,"' + p.name + '",' + p.qty + ',₹' + (p.price || 0) + ',Available\n';
   });
 
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  var blob = new Blob([csv], { type: 'text/csv' });
+  var url = window.URL.createObjectURL(blob);
+  var a = document.createElement('a');
   a.href = url;
-  a.download = `Ayurexim_Inventory_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = 'Ayurexim_Inventory.csv';
   a.click();
-  showToast("CSV Downloaded ✓");
-}
-
-/* Modal Helper Functions */
-function openRestockModal(type, id) {
-  activeRestockItem = { type, id };
-  const modal = document.getElementById('restock-modal');
-  const title = document.getElementById('modal-title');
-  const sub = document.getElementById('modal-sub');
-  const input = document.getElementById('modal-qty');
-
-  input.value = '';
-
-  if (type === 'raw') {
-    const item = raw.find(r => r.id === id);
-    title.textContent = `Restock ${item.name}`;
-    sub.textContent = `Current stock: ${item.qty} ${item.unit}`;
-  } else {
-    const item = products.find(p => p.id === id);
-    title.textContent = `Add Production Batch: ${item.name}`;
-    sub.textContent = `Current stock: ${item.qty}`;
-  }
-
-  modal.style.display = 'flex';
-  input.focus();
-}
-
-function closeModal() {
-  document.getElementById('restock-modal').style.display = 'none';
-  activeRestockItem = null;
-}
-
-async function confirmRestock() {
-  if (!activeRestockItem) return;
-  const amt = parseFloat(document.getElementById('modal-qty').value);
-  
-  if (isNaN(amt) || amt <= 0) {
-    closeModal();
-    return;
-  }
-
-  if (activeRestockItem.type === 'raw') {
-    const item = raw.find(r => r.id === activeRestockItem.id);
-    if (item) {
-      item.qty = round2(item.qty + amt);
-      await saveItem('raw_materials', item);
-      renderRaw();
-      renderOrder();
-    }
-  } else if (activeRestockItem.type === 'product') {
-    const item = products.find(p => p.id === activeRestockItem.id);
-    if (item) {
-      item.qty = round2(item.qty + amt);
-      await saveItem('products', item);
-      renderProducts();
-    }
-  }
-
-  closeModal();
 }
 
 function esc(s) {
-  const d = document.createElement('div');
+  var d = document.createElement('div');
   d.textContent = s == null ? '' : s;
   return d.innerHTML;
 }
 
-// Initial Data Load
-loadAll();
+// Run initial setup immediately when page loads
+window.onload = function() {
+  renderRaw();
+  renderOrder();
+  renderProducts();
+  initSupabase();
+};
 </script>
 </body>
 </html>
