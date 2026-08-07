@@ -7,259 +7,385 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+<!-- Supabase JS Client via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-  :root{
-    --bg:#1E160C;
-    --bg-alt:#EBDFC4;
-    --card:#F7EFDD;
-    --ink:#5A3A1E;
-    --ink-soft:#8C6A45;
-    --forest:#5A3A1E;
-    --forest-soft:#8C6A45;
-    --gold:#D8A83B;
-    --gold-soft:#B9924E;
-    --turmeric:#96650E;
-    --turmeric-bg:#F3E1BC;
-    --clay:#8A3A22;
-    --clay-bg:#F1DCD2;
-    --line:#3A2C18;
+  :root {
+    --bg: #1E160C;
+    --bg-alt: #EBDFC4;
+    --card: #F7EFDD;
+    --ink: #5A3A1E;
+    --ink-soft: #8C6A45;
+    --forest: #5A3A1E;
+    --forest-soft: #8C6A45;
+    --gold: #D8A83B;
+    --gold-soft: #B9924E;
+    --turmeric: #96650E;
+    --clay: #8A3A22;
+    --line: #3A2C18;
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--gold);
-    font-family:'Work Sans',sans-serif;
-    padding-bottom:92px;
-    min-height:100vh;
+  
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--gold);
+    font-family: 'Work Sans', sans-serif;
+    padding-bottom: 92px;
+    min-height: 100vh;
   }
-  header{
-    padding:22px 20px 16px;
-    background:var(--bg);
+  
+  header {
+    padding: 22px 20px 16px;
+    background: var(--bg);
   }
-  header .eyebrow{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:var(--gold-soft);
+  
+  header .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
   }
-  header h1{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:32px;
-    margin:2px 0 0;
-    color:var(--gold);
+  
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 32px;
+    margin: 2px 0 0;
+    color: var(--gold);
   }
-  main{padding:8px 16px 24px;max-width:520px;margin:0 auto;}
-  .section-title{
-    font-family:'Fraunces',serif;
-    font-size:22px;
-    font-weight:600;
-    margin:20px 2px 10px;
-    color:var(--gold);
+  
+  main {
+    padding: 8px 16px 24px;
+    max-width: 520px;
+    margin: 0 auto;
   }
-  .empty{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:24px 18px;
-    text-align:center;
-    color:var(--ink-soft);
-    font-size:14px;
+  
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 20px 2px 10px;
+    color: var(--gold);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:14px 16px;
-    margin-bottom:10px;
+  
+  .search-box {
+    width: 100%;
+    margin-bottom: 12px;
   }
-  .card-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:10px;
+  
+  .search-box input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 99px;
+    border: 1px solid var(--gold-soft);
+    background: rgba(247, 239, 221, 0.08);
+    color: var(--gold);
+    font-size: 14px;
+    font-family: 'Work Sans', sans-serif;
+    outline: none;
   }
-  .card-name{font-weight:700;font-size:17px;color:var(--ink);}
-  .card-sub{font-size:13px;color:var(--ink-soft);margin-top:3px;}
-  .qty-tag{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:13px;
-    font-weight:500;
-    white-space:nowrap;
-    padding:4px 9px;
-    border-radius:8px;
-    background:var(--bg-alt);
-    color:var(--ink);
+  
+  .search-box input::placeholder {
+    color: var(--gold-soft);
+    opacity: 0.7;
   }
-  .qty-tag.low{background:var(--clay-bg);color:var(--clay);}
-  .qty-tag.mid{background:var(--turmeric-bg);color:var(--turmeric);}
-  .bar-track{height:5px;border-radius:4px;background:var(--bg-alt);margin-top:10px;overflow:hidden;}
-  .bar-fill{height:100%;border-radius:4px;background:var(--forest);}
-  .bar-fill.low{background:var(--clay);}
-  .bar-fill.mid{background:var(--turmeric);}
-  .card-actions{display:flex;gap:8px;margin-top:12px;}
-  .card-actions button{flex:1;}
-  .price{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:18px;color:var(--forest);}
-  button{
-    font-family:'Work Sans',sans-serif;
-    font-size:14.5px;
-    font-weight:600;
-    border-radius:99px;
-    border:1px solid var(--line);
-    background:var(--card);
-    color:var(--ink);
-    padding:11px 12px;
-    cursor:pointer;
+  
+  .empty {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 18px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
   }
-  button:active{transform:scale(.97);}
-  button.primary{background:var(--forest);color:#F7F3E9;border-color:var(--forest);}
-  button.ghost-danger{color:var(--clay);}
-  .add-btn{
-    display:flex;align-items:center;justify-content:center;gap:6px;
-    width:100%;
-    padding:12px;
-    border:1.5px dashed var(--gold-soft);
-    background:transparent;
-    color:var(--gold);
-    font-weight:600;
-    border-radius:12px;
-    margin-top:14px;
+  
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
   }
-  .form{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:16px;
-    margin-top:14px;
+  
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
   }
-  .form label{
-    display:block;
-    font-size:12px;
-    color:var(--ink-soft);
-    margin:10px 0 4px;
+  
+  .card-name { font-weight: 700; font-size: 17px; color: var(--ink); }
+  .card-sub { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+  .card-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .card-actions button { flex: 1; }
+  
+  .price {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--forest);
   }
-  .form label:first-child{margin-top:0;}
-  .form input, .form select{
-    width:100%;
-    padding:10px 11px;
-    border-radius:9px;
-    border:1px solid var(--line);
-    background:#fff;
-    font-size:15px;
-    font-family:'Work Sans',sans-serif;
-    color:var(--ink);
+  
+  button {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    padding: 11px 12px;
+    cursor: pointer;
   }
-  .form-row{display:flex;gap:10px;}
-  .form-row > div{flex:1;}
-  .form-actions{display:flex;gap:8px;margin-top:14px;}
-  .form-actions button{flex:1;}
-  .order-item{
-    display:flex;align-items:center;justify-content:space-between;
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:12px 14px;
-    margin-bottom:8px;
-    color:var(--ink);
+  
+  button:active { transform: scale(.97); }
+  button.primary { background: var(--forest); color: #F7F3E9; border-color: var(--forest); }
+  button.ghost-danger { color: var(--clay); border-color: transparent; background: transparent; }
+  
+  .add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 12px;
+    border: 1.5px dashed var(--gold-soft);
+    background: transparent;
+    color: var(--gold);
+    font-weight: 600;
+    border-radius: 12px;
+    margin-top: 14px;
   }
-  .order-item .name{font-weight:600;font-size:15.5px;}
-  .order-item .note{font-size:13px;color:var(--ink-soft);margin-top:3px;}
-  nav{
-    position:fixed;bottom:0;left:0;right:0;
-    background:var(--card);
-    border-top:1px solid var(--line);
-    display:flex;
-    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
-    z-index:10;
+  
+  .form {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
   }
-  nav button{
-    flex:1;
-    background:none;
-    border:none;
-    display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:6px 2px;
-    color:var(--ink-soft);
-    font-size:12.5px;
-    font-weight:600;
+  
+  .form label {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 10px 0 4px;
   }
-  nav button.active{color:var(--forest);}
-  nav .dot{width:6px;height:6px;border-radius:50%;background:transparent;}
-  nav button.active .dot{background:var(--forest);}
-  .tab{display:none;}
-  .tab.active{display:block;}
-  .badge-count{
-    display:inline-block;
-    background:var(--clay);
-    color:#fff;
-    font-size:10px;
-    font-weight:600;
-    border-radius:999px;
-    padding:1px 6px;
-    margin-left:5px;
-    vertical-align:2px;
+  
+  .form label:first-child { margin-top: 0; }
+  
+  .form input, .form select {
+    width: 100%;
+    padding: 10px 11px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-size: 15px;
+    font-family: 'Work Sans', sans-serif;
+    color: var(--ink);
   }
-  .notice{
-    font-size:11.5px;
-    color:var(--gold-soft);
-    text-align:center;
-    margin:16px 0 0;
+  
+  .form-row { display: flex; gap: 10px; }
+  .form-row > div { flex: 1; }
+  .form-actions { display: flex; gap: 8px; margin-top: 14px; }
+  .form-actions button { flex: 1; }
+  
+  .order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    color: var(--ink);
   }
-  .tile-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
+  
+  .order-item .name { font-weight: 600; font-size: 15.5px; }
+  .order-item .note { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+  
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--line);
+    display: flex;
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index: 10;
   }
-  .tile{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:12px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    min-height:128px;
-    color:var(--ink);
+  
+  nav button {
+    flex: 1;
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 2px;
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    font-weight: 600;
   }
-  .tile-name{font-weight:700;font-size:16px;line-height:1.3;}
-  .tile-sub{font-size:12.5px;color:var(--ink-soft);margin-top:3px;}
-  .tile-qty-row{display:flex;align-items:baseline;gap:5px;margin:8px 0;}
-  .tile-qty{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:28px;
-    font-weight:600;
-    color:var(--forest);
-    background:transparent;
-    border:none;
-    width:66px;
-    padding:0;
+  
+  nav button.active { color: var(--forest); }
+  nav .dot { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
+  nav button.active .dot { background: var(--forest); }
+  
+  .tab { display: none; }
+  .tab.active { display: block; }
+  
+  .badge-count {
+    display: inline-block;
+    background: var(--clay);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 1px 6px;
+    margin-left: 5px;
+    vertical-align: 2px;
   }
-  .tile-qty.low{color:var(--clay);}
-  .tile-qty.mid{color:var(--turmeric);}
-  .tile-unit{font-size:14px;font-weight:500;color:var(--ink-soft);}
-  .tile-row{display:flex;gap:8px;}
-  .tile-btn{
-    flex:1;
-    text-align:center;
-    background:var(--bg-alt);
-    border:none;
-    border-radius:8px;
-    padding:13px 0;
-    font-weight:700;
-    font-size:20px;
-    color:var(--forest);
+  
+  .notice {
+    font-size: 11.5px;
+    color: var(--gold-soft);
+    text-align: center;
+    margin: 16px 0 0;
   }
-  .tile-btn.minus{color:var(--clay);}
-  .tile-remove{
-    align-self:flex-end;
-    font-size:12.5px;
-    font-weight:500;
-    color:var(--ink-soft);
-    margin-top:8px;
-    padding:2px 0;
-    background:none;
-    border:none;
+  
+  .tile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .tile {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+    color: var(--ink);
+  }
+  
+  .tile-name { font-weight: 700; font-size: 16px; line-height: 1.3; }
+  .tile-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; }
+  .tile-qty-row { display: flex; align-items: baseline; gap: 5px; margin: 8px 0; }
+  
+  .tile-qty {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--forest);
+    background: transparent;
+    border: none;
+    width: 80px;
+    padding: 0;
+    outline: none;
+  }
+  
+  .tile-qty.low { color: var(--clay); }
+  .tile-qty.mid { color: var(--turmeric); }
+  .tile-unit { font-size: 14px; font-weight: 500; color: var(--ink-soft); }
+  .tile-row { display: flex; gap: 8px; }
+  
+  .tile-btn {
+    flex: 1;
+    text-align: center;
+    background: var(--bg-alt);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 0;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--forest);
+  }
+  
+  .tile-btn.minus { color: var(--clay); }
+  
+  .tile-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+  }
+  
+  .tile-action-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  .tile-action-link.danger { color: var(--clay); }
+
+  /* Restock Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 360px;
+    color: var(--ink);
+  }
+
+  .modal h3 {
+    margin: 0 0 6px;
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+  }
+
+  .modal p {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .modal input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    flex: 1;
   }
 </style>
 </head>
@@ -272,17 +398,22 @@
 
 <main>
 
+  <!-- TAB 1: RAW MATERIALS -->
   <div id="tab-raw" class="tab active">
     <div class="section-title">Raw materials</div>
+    <div class="search-box">
+      <input id="search-raw" placeholder="Search materials..." oninput="renderRaw()">
+    </div>
     <div id="raw-list"></div>
     <button class="add-btn" onclick="toggleForm('raw-form')"><span>+</span> Add raw material</button>
+    
     <div id="raw-form" class="form" style="display:none;">
       <label>Material name</label>
       <input id="raw-name" placeholder="e.g. Neem leaf powder">
       <div class="form-row">
         <div>
           <label>Quantity on hand</label>
-          <input id="raw-qty" type="number" placeholder="0">
+          <input id="raw-qty" type="number" step="any" placeholder="0">
         </div>
         <div>
           <label>Unit</label>
@@ -295,8 +426,8 @@
           </select>
         </div>
       </div>
-      <label>Reorder below</label>
-      <input id="raw-threshold" type="number" placeholder="qty that means low stock">
+      <label>Reorder threshold</label>
+      <input id="raw-threshold" type="number" step="any" placeholder="qty that means low stock">
       <div class="form-actions">
         <button onclick="toggleForm('raw-form')">Cancel</button>
         <button class="primary" onclick="addRaw()">Save</button>
@@ -304,6 +435,7 @@
     </div>
   </div>
 
+  <!-- TAB 2: TO ORDER -->
   <div id="tab-order" class="tab">
     <div class="section-title">Running low<span id="low-count" class="badge-count" style="display:none;"></span></div>
     <div id="low-list"></div>
@@ -311,11 +443,12 @@
     <div class="section-title">Other things to order</div>
     <div id="manual-order-list"></div>
     <button class="add-btn" onclick="toggleForm('order-form')"><span>+</span> Add to order list</button>
+    
     <div id="order-form" class="form" style="display:none;">
       <label>Item</label>
       <input id="order-name" placeholder="e.g. Amber glass bottles 50ml">
       <label>Note (optional)</label>
-      <input id="order-note" placeholder="supplier, quantity, anything useful">
+      <input id="order-note" placeholder="supplier, quantity, details">
       <div class="form-actions">
         <button onclick="toggleForm('order-form')">Cancel</button>
         <button class="primary" onclick="addOrder()">Save</button>
@@ -323,21 +456,26 @@
     </div>
   </div>
 
+  <!-- TAB 3: PRODUCTS -->
   <div id="tab-products" class="tab">
     <div class="section-title">Ready products</div>
+    <div class="search-box">
+      <input id="search-products" placeholder="Search products..." oninput="renderProducts()">
+    </div>
     <div id="products-list"></div>
     <button class="add-btn" onclick="toggleForm('product-form')"><span>+</span> Add product</button>
+    
     <div id="product-form" class="form" style="display:none;">
       <label>Product name</label>
       <input id="product-name" placeholder="e.g. Turmeric & Neem Face Pack">
       <div class="form-row">
         <div>
-          <label>Price</label>
-          <input id="product-price" type="number" placeholder="0">
+          <label>Price (₹)</label>
+          <input id="product-price" type="number" step="any" placeholder="0">
         </div>
         <div>
           <label>Stock on hand</label>
-          <input id="product-qty" type="number" placeholder="0">
+          <input id="product-qty" type="number" step="any" placeholder="0">
         </div>
       </div>
       <label>SKU (optional)</label>
@@ -349,7 +487,7 @@
     </div>
   </div>
 
-  <p class="notice">Data saved locally in browser.</p>
+  <p class="notice">Connected to Supabase Database.</p>
 </main>
 
 <nav>
@@ -364,66 +502,89 @@
   </button>
 </nav>
 
+<!-- RESTOCK MODAL -->
+<div id="restock-modal" class="modal-overlay" style="display:none;">
+  <div class="modal">
+    <h3 id="modal-title">Restock Item</h3>
+    <p id="modal-sub">Add incoming stock amount.</p>
+    <input id="modal-qty" type="number" step="any" placeholder="Enter quantity">
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancel</button>
+      <button class="primary" onclick="confirmRestock()">Add Stock</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// Supabase Client Config
+const SUPABASE_URL = 'https://ybwypwvvwcwrfixpkffh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Uh-c3nedc25Kj59dpIGFJA_PaI5D--w';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let raw = [];
 let manualOrders = [];
 let products = [];
+let activeRestockItem = null;
 
-function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function uid() { 
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); 
+}
 
-async function loadAll(){
-  raw = await getData('raw-materials') || [];
-  manualOrders = await getData('manual-orders') || [];
-  products = await getData('products') || [];
+async function loadAll() {
+  const { data: rawData } = await supabase.from('raw_materials').select('*');
+  const { data: orderData } = await supabase.from('manual_orders').select('*');
+  const { data: productData } = await supabase.from('products').select('*');
+
+  raw = rawData || [];
+  manualOrders = orderData || [];
+  products = productData || [];
+
   renderRaw();
   renderOrder();
   renderProducts();
 }
 
-// Standard Browser Storage Fix
-async function getData(key){
-  try{
-    const r = localStorage.getItem(key);
-    return r ? JSON.parse(r) : null;
-  }catch(e){ return null; }
+async function saveItem(table, item) {
+  await supabase.from(table).upsert(item);
 }
 
-async function setData(key, value){
-  try{ 
-    localStorage.setItem(key, JSON.stringify(value)); 
-  } catch(e){ 
-    console.error('save failed', e); 
-  }
+async function deleteItem(table, id) {
+  await supabase.from(table).delete().eq('id', id);
 }
 
-function switchTab(name){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  document.getElementById('nav-'+name).classList.add('active');
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
 }
 
-function toggleForm(id){
+function toggleForm(id) {
   const el = document.getElementById(id);
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-function stockLevel(qty, threshold){
-  if(threshold <= 0) return 'ok';
-  if(qty <= threshold) return 'low';
-  if(qty <= threshold * 1.5) return 'mid';
+function stockLevel(qty, threshold) {
+  if (threshold <= 0) return 'ok';
+  if (qty <= threshold) return 'low';
+  if (qty <= threshold * 1.5) return 'mid';
   return 'ok';
 }
 
-function renderRaw(){
+function renderRaw() {
   const list = document.getElementById('raw-list');
-  if(raw.length === 0){
-    list.innerHTML = '<div class="empty">No raw materials added yet.</div>';
+  const query = (document.getElementById('search-raw')?.value || '').toLowerCase();
+  
+  const filtered = raw.filter(r => r.name.toLowerCase().includes(query));
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty">No raw materials found.</div>';
     return;
   }
-  list.innerHTML = '<div class="tile-grid">' + raw.map(item => {
+
+  list.innerHTML = '<div class="tile-grid">' + filtered.map(item => {
     const level = stockLevel(item.qty, item.threshold);
-    const levelClass = level==='low'?'low':level==='mid'?'mid':'';
+    const levelClass = level === 'low' ? 'low' : level === 'mid' ? 'mid' : '';
     return `
     <div class="tile">
       <div>
@@ -431,74 +592,83 @@ function renderRaw(){
         <div class="tile-sub">${item.threshold > 0 ? 'reorder below ' + item.threshold + ' ' + esc(item.unit) : 'no reorder point'}</div>
       </div>
       <div class="tile-qty-row">
-        <input class="tile-qty ${levelClass}" type="number" step="${item.unit==='kg'||item.unit==='L'?'0.5':'1'}" value="${item.qty}" onchange="setQty('${item.id}', this.value)">
+        <input class="tile-qty ${levelClass}" type="number" step="any" value="${item.qty}" onblur="setQty('${item.id}', this.value)">
         <span class="tile-unit">${esc(item.unit)}</span>
       </div>
       <div class="tile-row">
         <button class="tile-btn minus" onclick="adjustQty('${item.id}', -1)">&minus;</button>
         <button class="tile-btn" onclick="adjustQty('${item.id}', 1)">+</button>
       </div>
-      <button class="tile-remove" onclick="removeRaw('${item.id}')">Remove</button>
+      <div class="tile-footer">
+        <button class="tile-action-link" onclick="openRestockModal('raw', '${item.id}')">+ Restock</button>
+        <button class="tile-action-link danger" onclick="removeRaw('${item.id}')">Remove</button>
+      </div>
     </div>`;
   }).join('') + '</div>';
 }
 
-function stepFor(unit){
+function stepFor(unit) {
   return (unit === 'kg' || unit === 'L') ? 0.5 : 1;
 }
 
-function adjustQty(id, dir){
+async function adjustQty(id, dir) {
   const item = raw.find(r => r.id === id);
-  if(!item) return;
+  if (!item) return;
   const step = stepFor(item.unit);
   item.qty = Math.max(0, round2(item.qty + (dir * step)));
-  setData('raw-materials', raw);
+  await saveItem('raw_materials', item);
   renderRaw();
   renderOrder();
 }
 
-function setQty(id, val){
+async function setQty(id, val) {
   const item = raw.find(r => r.id === id);
-  if(!item) return;
+  if (!item) return;
   const n = parseFloat(val);
-  item.qty = isNaN(n) ? item.qty : Math.max(0, round2(n));
-  setData('raw-materials', raw);
-  renderRaw();
-  renderOrder();
+  if (!isNaN(n)) {
+    item.qty = Math.max(0, round2(n));
+    await saveItem('raw_materials', item);
+    renderRaw();
+    renderOrder();
+  }
 }
 
-function round2(n){ return Math.round(n * 100) / 100; }
+function round2(n) { return Math.round(n * 100) / 100; }
 
-function removeRaw(id){
-  if(!confirm('Remove this material?')) return;
+async function removeRaw(id) {
+  if (!confirm('Remove this material?')) return;
   raw = raw.filter(r => r.id !== id);
-  setData('raw-materials', raw);
+  await deleteItem('raw_materials', id);
   renderRaw();
   renderOrder();
 }
 
-function addRaw(){
+async function addRaw() {
   const name = document.getElementById('raw-name').value.trim();
   const qty = parseFloat(document.getElementById('raw-qty').value) || 0;
-  const unit = document.getElementById('raw-unit').value.trim() || 'units';
+  const unit = document.getElementById('raw-unit').value.trim() || 'kg';
   const threshold = parseFloat(document.getElementById('raw-threshold').value) || 0;
-  if(!name) return;
-  raw.push({id: uid(), name, qty, unit, threshold});
-  setData('raw-materials', raw);
+  if (!name) return;
+
+  const newItem = { id: uid(), name, qty, unit, threshold };
+  raw.push(newItem);
+  await saveItem('raw_materials', newItem);
+
   document.getElementById('raw-name').value = '';
   document.getElementById('raw-qty').value = '';
-  document.getElementById('raw-unit').value = '';
+  document.getElementById('raw-unit').value = 'kg';
   document.getElementById('raw-threshold').value = '';
   toggleForm('raw-form');
   renderRaw();
   renderOrder();
 }
 
-function renderOrder(){
+function renderOrder() {
   const lowItems = raw.filter(r => r.threshold > 0 && r.qty <= r.threshold);
   const lowList = document.getElementById('low-list');
   const lowCount = document.getElementById('low-count');
-  if(lowItems.length === 0){
+
+  if (lowItems.length === 0) {
     lowList.innerHTML = '<div class="empty">Nothing running low right now.</div>';
     lowCount.style.display = 'none';
   } else {
@@ -510,12 +680,12 @@ function renderOrder(){
           <div class="name">${esc(item.name)}</div>
           <div class="note">${item.qty} ${esc(item.unit)} left, reorder below ${item.threshold}</div>
         </div>
-        <button class="primary" onclick="quickRestock('${item.id}')">Restocked</button>
+        <button class="primary" onclick="openRestockModal('raw', '${item.id}')">Restock</button>
       </div>`).join('');
   }
 
   const manualList = document.getElementById('manual-order-list');
-  if(manualOrders.length === 0){
+  if (manualOrders.length === 0) {
     manualList.innerHTML = '<div class="empty">No other items on the order list.</div>';
   } else {
     manualList.innerHTML = manualOrders.map(o => `
@@ -524,49 +694,44 @@ function renderOrder(){
           <div class="name">${esc(o.name)}</div>
           ${o.note ? `<div class="note">${esc(o.note)}</div>` : ''}
         </div>
-        <button onclick="removeOrder('${o.id}')">Got it</button>
+        <button onclick="removeOrder('${o.id}')">Done</button>
       </div>`).join('');
   }
 }
 
-function quickRestock(id){
-  const item = raw.find(r => r.id === id);
-  if(!item) return;
-  const amt = prompt(`How much ${item.unit} of ${item.name} came in?`, '');
-  if(amt === null) return;
-  const n = parseFloat(amt);
-  if(isNaN(n) || n <= 0) return;
-  item.qty += n;
-  setData('raw-materials', raw);
-  renderRaw();
-  renderOrder();
-}
-
-function addOrder(){
+async function addOrder() {
   const name = document.getElementById('order-name').value.trim();
   const note = document.getElementById('order-note').value.trim();
-  if(!name) return;
-  manualOrders.push({id: uid(), name, note});
-  setData('manual-orders', manualOrders);
+  if (!name) return;
+
+  const newItem = { id: uid(), name, note };
+  manualOrders.push(newItem);
+  await saveItem('manual_orders', newItem);
+
   document.getElementById('order-name').value = '';
   document.getElementById('order-note').value = '';
   toggleForm('order-form');
   renderOrder();
 }
 
-function removeOrder(id){
+async function removeOrder(id) {
   manualOrders = manualOrders.filter(o => o.id !== id);
-  setData('manual-orders', manualOrders);
+  await deleteItem('manual_orders', id);
   renderOrder();
 }
 
-function renderProducts(){
+function renderProducts() {
   const list = document.getElementById('products-list');
-  if(products.length === 0){
-    list.innerHTML = '<div class="empty">No products added yet.</div>';
+  const query = (document.getElementById('search-products')?.value || '').toLowerCase();
+  
+  const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty">No products found.</div>';
     return;
   }
-  list.innerHTML = products.map(p => `
+
+  list.innerHTML = filtered.map(p => `
     <div class="card">
       <div class="card-top">
         <div>
@@ -576,40 +741,40 @@ function renderProducts(){
         <div class="price">${p.price ? '₹' + p.price : ''}</div>
       </div>
       <div class="card-actions">
-        <button onclick="adjustProductQty('${p.id}', 1)">+ made</button>
-        <button onclick="adjustProductQty('${p.id}', -1)">- sold</button>
+        <button onclick="adjustProductQty('${p.id}', 1)">+ Made 1</button>
+        <button onclick="adjustProductQty('${p.id}', -1)">- Sold 1</button>
+        <button onclick="openRestockModal('product', '${p.id}')">Bulk Batch</button>
         <button class="ghost-danger" onclick="removeProduct('${p.id}')">Remove</button>
       </div>
     </div>`).join('');
 }
 
-function adjustProductQty(id, dir){
+async function adjustProductQty(id, dir) {
   const p = products.find(x => x.id === id);
-  if(!p) return;
-  const amt = prompt(dir > 0 ? `How many ${p.name} were made?` : `How many ${p.name} were sold?`, '1');
-  if(amt === null) return;
-  const n = parseFloat(amt);
-  if(isNaN(n) || n <= 0) return;
-  p.qty = Math.max(0, p.qty + (dir * n));
-  setData('products', products);
+  if (!p) return;
+  p.qty = Math.max(0, p.qty + dir);
+  await saveItem('products', p);
   renderProducts();
 }
 
-function removeProduct(id){
-  if(!confirm('Remove this product?')) return;
+async function removeProduct(id) {
+  if (!confirm('Remove this product?')) return;
   products = products.filter(p => p.id !== id);
-  setData('products', products);
+  await deleteItem('products', id);
   renderProducts();
 }
 
-function addProduct(){
+async function addProduct() {
   const name = document.getElementById('product-name').value.trim();
   const price = parseFloat(document.getElementById('product-price').value) || 0;
   const qty = parseFloat(document.getElementById('product-qty').value) || 0;
   const sku = document.getElementById('product-sku').value.trim();
-  if(!name) return;
-  products.push({id: uid(), name, price, qty, sku});
-  setData('products', products);
+  if (!name) return;
+
+  const newItem = { id: uid(), name, price, qty, sku };
+  products.push(newItem);
+  await saveItem('products', newItem);
+
   document.getElementById('product-name').value = '';
   document.getElementById('product-price').value = '';
   document.getElementById('product-qty').value = '';
@@ -618,12 +783,71 @@ function addProduct(){
   renderProducts();
 }
 
-function esc(s){
+/* Modal Helper Functions */
+function openRestockModal(type, id) {
+  activeRestockItem = { type, id };
+  const modal = document.getElementById('restock-modal');
+  const title = document.getElementById('modal-title');
+  const sub = document.getElementById('modal-sub');
+  const input = document.getElementById('modal-qty');
+
+  input.value = '';
+
+  if (type === 'raw') {
+    const item = raw.find(r => r.id === id);
+    title.textContent = `Restock ${item.name}`;
+    sub.textContent = `Current stock: ${item.qty} ${item.unit}`;
+  } else {
+    const item = products.find(p => p.id === id);
+    title.textContent = `Add Production Batch: ${item.name}`;
+    sub.textContent = `Current stock: ${item.qty}`;
+  }
+
+  modal.style.display = 'flex';
+  input.focus();
+}
+
+function closeModal() {
+  document.getElementById('restock-modal').style.display = 'none';
+  activeRestockItem = null;
+}
+
+async function confirmRestock() {
+  if (!activeRestockItem) return;
+  const amt = parseFloat(document.getElementById('modal-qty').value);
+  
+  if (isNaN(amt) || amt <= 0) {
+    closeModal();
+    return;
+  }
+
+  if (activeRestockItem.type === 'raw') {
+    const item = raw.find(r => r.id === activeRestockItem.id);
+    if (item) {
+      item.qty = round2(item.qty + amt);
+      await saveItem('raw_materials', item);
+      renderRaw();
+      renderOrder();
+    }
+  } else if (activeRestockItem.type === 'product') {
+    const item = products.find(p => p.id === activeRestockItem.id);
+    if (item) {
+      item.qty = round2(item.qty + amt);
+      await saveItem('products', item);
+      renderProducts();
+    }
+  }
+
+  closeModal();
+}
+
+function esc(s) {
   const d = document.createElement('div');
   d.textContent = s == null ? '' : s;
   return d.innerHTML;
 }
 
+// Initial Data Load
 loadAll();
 </script>
 </body>
