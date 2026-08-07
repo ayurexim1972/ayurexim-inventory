@@ -39,8 +39,11 @@
   }
   
   header {
-    padding: 22px 20px 16px;
+    padding: 22px 20px 14px;
     background: var(--bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
   }
   
   header .eyebrow {
@@ -58,9 +61,53 @@
     margin: 2px 0 0;
     color: var(--gold);
   }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .header-btn {
+    background: rgba(247, 239, 221, 0.08);
+    border: 1px solid var(--gold-soft);
+    color: var(--gold);
+    border-radius: 99px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .header-btn:active {
+    transform: scale(0.96);
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px 16px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: rgba(247, 239, 221, 0.08);
+    border: 1px solid var(--gold-soft);
+    border-radius: 12px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .stat-label { font-size: 11px; color: var(--gold-soft); }
+  .stat-val { font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600; color: var(--gold); margin-top: 2px; }
+  .stat-val.alert { color: var(--clay); }
   
   main {
-    padding: 8px 16px 24px;
+    padding: 0 16px 24px;
     max-width: 520px;
     margin: 0 auto;
   }
@@ -69,7 +116,7 @@
     font-family: 'Fraunces', serif;
     font-size: 22px;
     font-weight: 600;
-    margin: 20px 2px 10px;
+    margin: 16px 2px 10px;
     color: var(--gold);
     display: flex;
     justify-content: space-between;
@@ -387,14 +434,59 @@
   .modal-actions button {
     flex: 1;
   }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--forest);
+    color: #F7F3E9;
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 300;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
+<!-- Toast Notification Banner -->
+<div id="toast" class="toast">Saved to cloud ✓</div>
+
 <header>
-  <div class="eyebrow">Ayurexim</div>
-  <h1>Inventory</h1>
+  <div>
+    <div class="eyebrow">Ayurexim</div>
+    <h1>Inventory</h1>
+  </div>
+  <div class="header-actions">
+    <button class="header-btn" onclick="syncData()">🔄 Sync</button>
+    <button class="header-btn" onclick="exportToCSV()">📥 Export</button>
+  </div>
 </header>
+
+<!-- Header Stats Summary Bar -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-label">Raw Items</div>
+    <div id="stat-raw-count" class="stat-val">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Low Stock</div>
+    <div id="stat-low-count" class="stat-val alert">0</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Stock Value</div>
+    <div id="stat-value" class="stat-val">₹0</div>
+  </div>
+</div>
 
 <main>
 
@@ -526,6 +618,13 @@ let manualOrders = [];
 let products = [];
 let activeRestockItem = null;
 
+function showToast(message = "Saved to cloud ✓") {
+  const t = document.getElementById('toast');
+  t.textContent = message;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
 function uid() { 
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); 
 }
@@ -539,17 +638,38 @@ async function loadAll() {
   manualOrders = orderData || [];
   products = productData || [];
 
+  updateStats();
   renderRaw();
   renderOrder();
   renderProducts();
 }
 
+async function syncData() {
+  showToast("Syncing database...");
+  await loadAll();
+  showToast("Data up to date ✓");
+}
+
+function updateStats() {
+  document.getElementById('stat-raw-count').textContent = raw.length;
+  
+  const lowItems = raw.filter(r => r.threshold > 0 && r.qty <= r.threshold);
+  document.getElementById('stat-low-count').textContent = lowItems.length;
+  
+  const totalVal = products.reduce((sum, p) => sum + ((p.price || 0) * (p.qty || 0)), 0);
+  document.getElementById('stat-value').textContent = '₹' + totalVal.toLocaleString('en-IN');
+}
+
 async function saveItem(table, item) {
   await supabase.from(table).upsert(item);
+  showToast("Saved to cloud ✓");
+  updateStats();
 }
 
 async function deleteItem(table, id) {
   await supabase.from(table).delete().eq('id', id);
+  showToast("Deleted from cloud ✓");
+  updateStats();
 }
 
 function switchTab(name) {
@@ -781,6 +901,27 @@ async function addProduct() {
   document.getElementById('product-sku').value = '';
   toggleForm('product-form');
   renderProducts();
+}
+
+function exportToCSV() {
+  let csv = "Category,Item Name,Quantity,Unit / Price,Status\n";
+  
+  raw.forEach(r => {
+    const status = (r.threshold > 0 && r.qty <= r.threshold) ? "LOW STOCK" : "OK";
+    csv += `Raw Material,"${r.name}",${r.qty},${r.unit},${status}\n`;
+  });
+  
+  products.forEach(p => {
+    csv += `Product,"${p.name}",${p.qty},₹${p.price || 0},Available\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Ayurexim_Inventory_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast("CSV Downloaded ✓");
 }
 
 /* Modal Helper Functions */
